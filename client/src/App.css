@@ -1,0 +1,27 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+
+@font-face {
+  font-family: "AstonScript";
+  src: url("./assets/Aston Script.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Vitoria";
+  src: url("./assets/Vitoria.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: "Outfit", sans-serif;
+}
+
+.italicFont {
+  font-family: "AstonScript", sans-serif;
+}
+
+.secondFont {
+  font-family: "Vitoria", sans-serif;
+}
