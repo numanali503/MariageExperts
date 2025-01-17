@@ -17,8 +17,8 @@ exports.addProposalToAgent = async (req, res) => {
 
         const proposalLimits = {
             basic: 3,
-            standard: 10,
-            premium: 50,
+            standard: 50,
+            premium: 100,
         };
 
         const { agentType, proposalLimit, registeredProposals } = agent;
