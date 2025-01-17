@@ -14,8 +14,9 @@ function ExtraProposal() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
-  // Quill editor modules configuration
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, false] }],
@@ -30,7 +31,6 @@ function ExtraProposal() {
 
   const formats = ["header", "bold", "italic", "underline", "list", "bullet"];
 
-  // Filter proposals based on search term
   useEffect(() => {
     if (searchTerm.trim() === "") {
       setFilteredProposals(proposals);
@@ -43,9 +43,9 @@ function ExtraProposal() {
       });
       setFilteredProposals(filtered);
     }
+    setCurrentPage(1);
   }, [searchTerm, proposals]);
 
-  // Custom CSS for heading styles
   useEffect(() => {
     const style = document.createElement("style");
     style.textContent = `
@@ -60,7 +60,6 @@ function ExtraProposal() {
     return () => document.head.removeChild(style);
   }, []);
 
-  // Fetch proposals
   const fetchProposals = async () => {
     setIsLoading(true);
     try {
@@ -209,9 +208,8 @@ function ExtraProposal() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Left Sidebar */}
-      <div className="w-1/4 bg-white shadow-md overflow-y-auto">
+    <div className="flex bg-gray-100">
+      <div className="w-1/4 bg-white shadow-md overflow-y-hidden">
         <div className="p-4 border-b space-y-4">
           <button
             onClick={handleCreateNew}
@@ -231,36 +229,75 @@ function ExtraProposal() {
             <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
           </div>
         </div>
-        <div className="divide-y">
-          {filteredProposals.map((proposal) => (
-            <div
-              key={proposal._id}
-              onClick={() => handleProposalSelect(proposal)}
-              className={`p-4 cursor-pointer hover:bg-gray-50 ${
-                selectedProposal?._id === proposal._id ? "bg-gray-100" : ""
-              }`}
-            >
-              <div className="flex items-center">
-                <div className="w-12 h-12 rounded-full overflow-hidden mr-3 flex-shrink-0">
-                  <img
-                    src={proposal.images[0]}
-                    alt="Thumbnail"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex-1 min-w-0 pr-2">
-                  <div className="font-bold text-gray-900 truncate">
-                    {getFirstLine(proposal.proposalDetails)}
-                  </div>
-                </div>
-                <i className="fas fa-chevron-right text-gray-400 flex-shrink-0"></i>
-              </div>
+        {filteredProposals.length > ITEMS_PER_PAGE && (
+          <div className="p-4 border-t">
+            <div className="flex justify-between items-center">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-rose-900 text-white rounded disabled:opacity-50"
+              >
+                <i className="fas fa-chevron-left"></i>
+              </button>
+              <span>
+                Page {currentPage} of{" "}
+                {Math.ceil(filteredProposals.length / ITEMS_PER_PAGE)}
+              </span>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) =>
+                    Math.min(
+                      prev + 1,
+                      Math.ceil(filteredProposals.length / ITEMS_PER_PAGE)
+                    )
+                  )
+                }
+                disabled={
+                  currentPage >=
+                  Math.ceil(filteredProposals.length / ITEMS_PER_PAGE)
+                }
+                className="px-4 py-2 bg-rose-900 text-white rounded disabled:opacity-50"
+              >
+                <i className="fas fa-chevron-right"></i>
+              </button>
             </div>
-          ))}
+          </div>
+        )}
+
+        <div className="divide-y">
+          {filteredProposals
+            .slice(
+              (currentPage - 1) * ITEMS_PER_PAGE,
+              currentPage * ITEMS_PER_PAGE
+            )
+            .map((proposal) => (
+              <div
+                key={proposal._id}
+                onClick={() => handleProposalSelect(proposal)}
+                className={`p-4 cursor-pointer hover:bg-gray-50 ${
+                  selectedProposal?._id === proposal._id ? "bg-gray-100" : ""
+                }`}
+              >
+                <div className="flex items-center">
+                  <div className="w-12 h-12 rounded-full overflow-hidden mr-3 flex-shrink-0">
+                    <img
+                      src={proposal.images[0]}
+                      alt="Thumbnail"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0 pr-2">
+                    <div className="font-bold text-gray-900 truncate">
+                      {getFirstLine(proposal.proposalDetails)}
+                    </div>
+                  </div>
+                  <i className="fas fa-chevron-right text-gray-400 flex-shrink-0"></i>
+                </div>
+              </div>
+            ))}
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 p-8 overflow-y-auto">
         {isCreating ? (
           <div className="bg-white rounded-lg shadow-md p-6">
